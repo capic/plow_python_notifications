@@ -1,0 +1,3 @@
+- installer crossbar
+- créer /var/www/notifications
+- dans /var/www/notifications -> crossbar init puis crossbar start

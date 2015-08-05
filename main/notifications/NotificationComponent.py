@@ -14,7 +14,6 @@ import utils
 
 
 class NotificationComponent(ApplicationSession):
-
     @inlineCallbacks
     def onJoin(self, details):
         print("session attached")
@@ -23,13 +22,22 @@ class NotificationComponent(ApplicationSession):
         regs = yield self.register(self)
         print('registered {} procedures'.format(len(regs)))
 
+        downloads_previous = []
         while True:
             downloads = yield self.call('plow.download.downloads')
 
+            previous_download = None
             for download in downloads:
-                print('publishing {}'.format(download))
-                self.publish(u'plow.download.downloads.infos_plowdown', {'infos_plowdown': download['infos_plowdown']})
+                for download_previous in downloads_previous:
+                    if download['id'] == download_previous['id']:
+                        previous_download = download_previous
 
+                if previous_download is None or previous_download['infos_plowdown'] != download['infos_plowdown']:
+                    print('publishing {}'.format(download))
+                    self.publish(u'plow.download.downloads.infos_plowdown', {'infos_plowdown': download['infos_plowdown']})
+                    # self.publish(u'plow.download.downloads.progress', {'download', download})
+
+            downloads_previous = downloads
             yield sleep(2)
 
     @wamp.register(u'plow.download.downloads')
