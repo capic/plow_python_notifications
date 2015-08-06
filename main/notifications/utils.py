@@ -97,11 +97,11 @@ def cursor_to_download_object(cursor):
             # download.name = name
             # download.package = package
             # download.link = link
-            # download.size_file = size_file
-            # download.size_part = size_part
+            download.size_file = size_file
+            download.size_part = size_part
             download.size_file_downloaded = size_file_downloaded
             download.size_part_downloaded = size_part_downloaded
-            # download.status = status
+            download.status = status
             download.progress_part = progress_part
             if size_file > 0:
                 download.progress_file = int((size_file_downloaded * 100) / size_file)

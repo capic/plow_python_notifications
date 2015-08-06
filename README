@@ -2,3 +2,8 @@
 - créer /var/www/notifications
 - créer /var/www/notifications/log
 - dans /var/www/notifications -> crossbar init puis crossbar start
+
+TODO:
+- il faut notifier aussi si un download est dans la liste des previous et qu'il n'est plus dans la current list
+- notifier quand des nouveaux telechargement sont ajoutés ?
+- deplacer ce module sur le nas ?

@@ -46,11 +46,16 @@ class NotificationComponent(ApplicationSession):
 
                 if previous_download is None or previous_download.infos_plowdown != download.infos_plowdown:
                     self.publish(u'plow.downloads.download.%s' % str(download.id),
-                                 {'id': download.id, 'progress_file': download.progress_file,
+                                 {'id': download.id,
+                                  'progress_file': download.progress_file,
+                                  'progress_part': download.progress_part,
                                   'size_file_downloaded': download.size_file_downloaded,
                                   'size_part_downloaded': download.size_part_downloaded,
                                   'time_left': download.time_left,
-                                  'average_speed': download.average_speed, 'infos_plowdown': download.infos_plowdown})
+                                  'average_speed': download.average_speed,
+                                  'status': download.status,
+                                  'infos_plowdown': download.infos_plowdown})
+                    print('Published')
 
                     downloads_list_to_publish.append(
                         {'id': download.id, 'progress_file': download.progress_file, 'time_left': download.time_left,
