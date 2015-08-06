@@ -24,40 +24,62 @@ class NotificationComponent(ApplicationSession):
 
         downloads_previous = []
         while True:
-            downloads = yield self.call('plow.download.downloads')
+            downloads_list_to_publish = []
+            # downloads = yield self.call('plow.download.downloads')
+            cursor = self.cnx.cursor()
+
+            sql = 'SELECT * FROM download WHERE status = %s'
+            data = (Download.STATUS_IN_PROGRESS,)
+            logging.debug('query : %s | data : (%s)' % (sql, str(Download.STATUS_IN_PROGRESS).encode('UTF-8')))
+
+            yield cursor.execute(sql, data)
+
+            downloads_list = utils.cursor_to_download_object(cursor)
+
+            cursor.close()
 
             previous_download = None
-            for download in downloads:
+            for download in downloads_list:
                 for download_previous in downloads_previous:
-                    if download['id'] == download_previous['id']:
+                    if download.id == download_previous.id:
                         previous_download = download_previous
 
-                if previous_download is None or previous_download['infos_plowdown'] != download['infos_plowdown']:
-                    print('publishing {}'.format(download))
-                    self.publish(u'plow.download.downloads.infos_plowdown', {'infos_plowdown': download['infos_plowdown']})
-                    # self.publish(u'plow.download.downloads.progress', {'download', download})
+                if previous_download is None or previous_download.infos_plowdown != download.infos_plowdown:
+                    self.publish(u'plow.downloads.download.%s' % str(download.id),
+                                 {'id': download.id, 'progress_file': download.progress_file,
+                                  'size_file_downloaded': download.size_file_downloaded,
+                                  'size_part_downloaded': download.size_part_downloaded,
+                                  'time_left': download.time_left,
+                                  'average_speed': download.average_speed, 'infos_plowdown': download.infos_plowdown})
 
-            downloads_previous = downloads
+                    downloads_list_to_publish.append(
+                        {'id': download.id, 'progress_file': download.progress_file, 'time_left': download.time_left,
+                         'average_speed': download.average_speed})
+
+            self.publish(u'plow.downloads.downloads', downloads_list_to_publish)
+            downloads_previous = downloads_list
             yield sleep(2)
 
-    @wamp.register(u'plow.download.downloads')
-    @inlineCallbacks
-    def get_downloads(self):
-        cursor = self.cnx.cursor()
-
-        sql = 'SELECT * FROM download WHERE status = %s'
-        data = (Download.STATUS_IN_PROGRESS, )
-        logging.debug('query : %s | data : (%s)' % (sql, str(Download.STATUS_IN_PROGRESS).encode('UTF-8')))
-
-        yield cursor.execute(sql, data)
-
-        list_downloads = utils.cursor_to_download_object(cursor)
-
-        returnValue(list_downloads)
+    # @wamp.register(u'plow.download.downloads')
+    # @inlineCallbacks
+    # def get_downloads(self):
+    #     cursor = self.cnx.cursor()
+    #
+    #     sql = 'SELECT * FROM download WHERE status = %s'
+    #     data = (Download.STATUS_IN_PROGRESS,)
+    #     logging.debug('query : %s | data : (%s)' % (sql, str(Download.STATUS_IN_PROGRESS).encode('UTF-8')))
+    #
+    #     yield cursor.execute(sql, data)
+    #
+    #     list_downloads = utils.cursor_to_download_object(cursor)
+    #
+    #     cursor.close()
+    #
+    #     returnValue(list_downloads)
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename='./log_notif.log', level=logging.DEBUG, format='%(asctime)s %(message)s',
+    logging.basicConfig(filename='./log/log_notif.log', level=logging.DEBUG, format='%(asctime)s %(message)s',
                         datefmt='%d/%m/%Y %H:%M:%S')
     logging.debug('*** Start notification server ***')
 

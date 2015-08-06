@@ -1,7 +1,5 @@
 __author__ = 'Vincent'
 
-import json
-
 
 class Download:
     STATUS_WAITING = 1
@@ -28,6 +26,11 @@ class Download:
         self.size_part_downloaded = 0
         # the progress of the current part
         self.progress_part = 0
+        # the progress of the file
+        if self.size_file > 0:
+            self.progress_file = int((self.size_file_downloaded * 100) / self.size_file);
+        else:
+            self.progress_file = 0
         self.status = 0
         self.average_speed = 0
         self.time_spent = 0
@@ -44,7 +47,7 @@ class Download:
         return 'download : \n id => %s | name => %s | link => %s | size_file => %s | size_part => %s' \
                ' | size_file_downloaded => %s | size_previous_part_downloaded => %s | size_part_downloaded => %s' \
                ' | status => %s | progress_part => %s | average_speed => %s | time_left => %s | time_spent => %s' \
-               'pid_plowdown => %s | pid_python => %s | file_path => %s | priority => %s | package_id => %s '% (
+               'pid_plowdown => %s | pid_python => %s | file_path => %s | priority => %s | package_id => %s ' % (
                    str(self.id), self.name, self.package, self.link, str(self.size_file), str(self.size_part),
                    str(self.size_file_downloaded), str(self.size_previous_part_downloaded),
                    str(self.size_part_downloaded), str(self.status), str(self.progress_part), str(self.average_speed),
@@ -55,4 +58,8 @@ class Download:
         # + ' | lifecycle_update_date => ' + str(self.lifecycle_update_date)
 
     def to_JSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        download_json = {'id': self.id,
+                         'size_file_downloaded': self.size_file_downloaded,
+                         'size_part_downloaded': self.size_part_downloaded,
+                         'infos_plowdown': self.infos_plowdown}
+        return download_json

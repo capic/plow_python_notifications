@@ -99,10 +99,14 @@ def cursor_to_download_object(cursor):
             # download.link = link
             # download.size_file = size_file
             # download.size_part = size_part
-            # download.size_file_downloaded = size_file_downloaded
-            # download.size_part_downloaded = size_part_downloaded
+            download.size_file_downloaded = size_file_downloaded
+            download.size_part_downloaded = size_part_downloaded
             # download.status = status
-            # download.progress_part = progress_part
+            download.progress_part = progress_part
+            if size_file > 0:
+                download.progress_file = int((size_file_downloaded * 100) / size_file)
+            else:
+                download.progress_file = 0
             # download.average_speed = average_speed
             # download.time_spent = time_spent
             # download.time_left = time_left
@@ -114,7 +118,7 @@ def cursor_to_download_object(cursor):
             # download.lifecycle_insert_date = lifecycle_insert_date
             # download.lifecycle_update_date = lifecycle_update_date
 
-            list_downloads.append({'id': download.id, 'infos_plowdown': download.infos_plowdown})
+            list_downloads.append(download)
 
         cursor.close()
 
