@@ -89,7 +89,7 @@ def cursor_to_download_object(cursor):
 
     if cursor is not None:
         for (database_download_id, name, package, link, size_file, size_part, size_file_downloaded, size_part_downloaded,
-             status, progress_part, average_speed, time_spent, time_left, pid_plowdown, pid_curl, pid_python, file_path,
+             status, progress_part, average_speed, current_speed, time_spent, time_left, pid_plowdown, pid_curl, pid_python, file_path,
              priority, infos_plowdown, lifecycle_insert_date, lifecycle_update_date) in cursor:
 
             download = Download()
@@ -107,7 +107,8 @@ def cursor_to_download_object(cursor):
                 download.progress_file = int((size_file_downloaded * 100) / size_file)
             else:
                 download.progress_file = 0
-            # download.average_speed = average_speed
+            download.average_speed = average_speed
+            download.current_speed = current_speed
             # download.time_spent = time_spent
             # download.time_left = time_left
             # download.pid_plowdown = pid_plowdown

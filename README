@@ -6,4 +6,4 @@
 TODO:
 - il faut notifier aussi si un download est dans la liste des previous et qu'il n'est plus dans la current list
 - notifier quand des nouveaux telechargement sont ajoutés ?
-- deplacer ce module sur le nas ?
+- n'envoyer que ce qu'il y a de nouveau dans les logs pour éviter d'envoyer un gros paquet
