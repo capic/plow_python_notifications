@@ -44,8 +44,8 @@ class NotificationComponent(ApplicationSession):
             for download_current in downloads_current_list:
                 previous_download = self.get_previous_download(downloads_previous_list, download_current)
 
-                if previous_download is None or previous_download.infos_plowdown != download_current.infos_plowdown:
-                    self.publish_to_download(download_current)
+                if previous_download is None or previous_download.lifecycle_update_date < download_current.lifecycle_update_date:
+                    self.publish_to_download(download_current, previous_download)
                     print('Published')
                     downloads_list_to_publish.append(self.put_download_to_downloads_list_to_publish(download_current))
 
@@ -53,12 +53,12 @@ class NotificationComponent(ApplicationSession):
                 logging.debug('Publish:'.format(downloads_list_to_publish))
                 self.publish(u'plow.downloads.downloads', downloads_list_to_publish)
 
-            if len(downloads_previous_list ) > 0:
+            if len(downloads_previous_list) > 0:
                 downloads_previous_list_to_publish = []
                 # notifie les telechargement qui ont changé de statut
                 for download_previous in downloads_previous_list:
                     logging.debug('Status changing for %s' % download_previous.id)
-                    self.publish_to_download(download_previous)
+                    self.publish_to_download(download_previous, None)
                     downloads_previous_list_to_publish.append(self.put_download_to_downloads_list_to_publish(download_previous))
                 logging.debug('Status changing for list')
                 self.publish(u'plow.downloads.downloads', downloads_previous_list_to_publish)
@@ -78,8 +78,13 @@ class NotificationComponent(ApplicationSession):
 
         return previous_download
 
-    def publish_to_download(self, download):
+    def publish_to_download(self, download, previous_download):
         logging.debug('*** publish_to_download ***')
+        last_infos_plowdown = download.infos_plowdown
+        if previous_download is not None:
+            #on ne récupère que les lignes qu'on avait pas avant
+            last_infos_plowdown = download.infos_plowdown.replace(previous_download.infos_plowdown, '')
+
         to_publish = {'id': download.id,
                       'progress_file': download.progress_file,
                       'progress_part': download.progress_part,
@@ -90,7 +95,7 @@ class NotificationComponent(ApplicationSession):
                       'average_speed': download.average_speed,
                       'current_speed': download.current_speed,
                       'status': download.status,
-                      'infos_plowdown': download.infos_plowdown
+                      'last_infos_plowdown': last_infos_plowdown
                       }
         logging.debug('Publish: %s' % format(to_publish))
         self.publish(u'plow.downloads.download.%s' % str(download.id), to_publish)
@@ -98,7 +103,8 @@ class NotificationComponent(ApplicationSession):
     def put_download_to_downloads_list_to_publish(self, download):
         return {'id': download.id, 'progress_file': download.progress_file,
                          'time_left': download.time_left,
-                         'average_speed': download.average_speed}
+                         'average_speed': download.average_speed,
+                         'status': download.status}
 
 if __name__ == '__main__':
     logging.basicConfig(filename='/var/www/main/notifications/log/log_notif.log', level=logging.DEBUG,

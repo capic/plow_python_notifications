@@ -109,15 +109,15 @@ def cursor_to_download_object(cursor):
                 download.progress_file = 0
             download.average_speed = average_speed
             download.current_speed = current_speed
-            # download.time_spent = time_spent
-            # download.time_left = time_left
+            download.time_spent = time_spent
+            download.time_left = time_left
             # download.pid_plowdown = pid_plowdown
             # download.pid_python = pid_python
             # download.file_path = file_path
             # download.priority = priority
             download.infos_plowdown = infos_plowdown
-            # download.lifecycle_insert_date = lifecycle_insert_date
-            # download.lifecycle_update_date = lifecycle_update_date
+            download.lifecycle_insert_date = lifecycle_insert_date
+            download.lifecycle_update_date = lifecycle_update_date
 
             list_downloads.append(download)
 
