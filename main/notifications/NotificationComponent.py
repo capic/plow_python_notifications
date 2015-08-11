@@ -58,8 +58,18 @@ class NotificationComponent(ApplicationSession):
                 # notifie les telechargement qui ont changé de statut
                 for download_previous in downloads_previous_list:
                     logging.debug('Status changing for %s' % download_previous.id)
-                    self.publish_to_download(download_previous, None)
-                    downloads_previous_list_to_publish.append(self.put_download_to_downloads_list_to_publish(download_previous))
+                    logging.debug('Get download for id %s' % download_previous.id)
+                    # besoin de récupérer le download pour avoir le nouveau status
+                    cursor = self.cnx.cursor()
+                    sql = 'SELECT * FROM download WHERE id = %s'
+                    data = (download_previous.id,)
+                    logging.debug('query : %s | data : (%s)' % (sql, str(download_previous.id).encode('UTF-8')))
+                    cursor.execute(sql, data)
+                    download_to_publish = utils.cursor_to_download_object(cursor)[0]
+                    cursor.close()
+
+                    self.publish_to_download(download_to_publish, None)
+                    downloads_previous_list_to_publish.append(self.put_download_to_downloads_list_to_publish(download_to_publish))
                 logging.debug('Status changing for list')
                 self.publish(u'plow.downloads.downloads', downloads_previous_list_to_publish)
 
