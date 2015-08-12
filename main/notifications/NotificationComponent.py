@@ -98,7 +98,9 @@ class NotificationComponent(ApplicationSession):
         to_publish = {'id': download.id,
                       'progress_file': download.progress_file,
                       'progress_part': download.progress_part,
+                      'size_file': download.size_file,
                       'size_file_downloaded': download.size_file_downloaded,
+                      'size_part': download.size_part,
                       'size_part_downloaded': download.size_part_downloaded,
                       'time_spent': download.time_spent,
                       'time_left': download.time_left,
@@ -107,6 +109,7 @@ class NotificationComponent(ApplicationSession):
                       'status': download.status,
                       'last_infos_plowdown': last_infos_plowdown
                       }
+
         logging.debug('Publish: %s' % format(to_publish))
         self.publish(u'plow.downloads.download.%s' % str(download.id), to_publish)
 
@@ -114,7 +117,8 @@ class NotificationComponent(ApplicationSession):
         return {'id': download.id, 'progress_file': download.progress_file,
                          'time_left': download.time_left,
                          'average_speed': download.average_speed,
-                         'status': download.status}
+                         'status': download.status,
+                         'size_file': download.size_file}
 
 if __name__ == '__main__':
     logging.basicConfig(filename='/var/www/main/notifications/log/log_notif.log', level=logging.DEBUG,
